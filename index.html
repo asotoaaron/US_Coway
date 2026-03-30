@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Air Purifier Market — Brand Comparison Dashboard 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c10;
+  --surface: #0f1419;
+  --surface2: #161d26;
+  --surface3: #1e2833;
+  --border: #232f3e;
+  --border2: #2d3f52;
+  --text: #e8edf2;
+  --text-dim: #8fa3ba;
+  --text-muted: #4a6278;
+  --accent: #00d4ff;
+  --accent2: #0099cc;
+  --green: #00e676;
+  --red: #ff4757;
+  --yellow: #ffd32a;
+  --orange: #ff6b35;
+  --purple: #bd93f9;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', sans-serif;
+  --display: 'Bebas Neue', sans-serif;
+
+  /* Brand colors */
+  --coway: #1a5c3a;
+  --levoit: #e74c3c;
+  --winix: #2980b9;
+  --puroair: #8e44ad;
+  --blueair: #1565c0;
+  --dyson: #c0392b;
+  --shark: #f39c12;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ---- HEADER ---- */
+header {
+  position: relative; z-index: 10;
+  padding: 20px 36px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,12,16,0.9);
+  backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0;
+}
+.logo { display: flex; align-items: center; gap: 14px; }
+.logo-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #080c10;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+.logo-title {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+.logo-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+.header-right { display: flex; align-items: center; gap: 20px; }
+.last-update {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.last-update span { color: var(--accent); }
+.refresh-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.25);
+  color: var(--accent);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.refresh-btn:hover { background: rgba(0,212,255,0.15); }
+.refresh-btn.spinning .ri { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- TABS ---- */
+.tab-nav {
+  position: relative; z-index: 5;
+  display: flex; gap: 0;
+  padding: 0 36px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 14px 24px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text-dim); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---- MAIN ---- */
+main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800px; margin: 0 auto; }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ---- FILTER BAR ---- */
+.filter-bar {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.filter-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 4px;
+}
+.chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #080c10; font-weight: 600; }
+.sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
+.sort-sel {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  outline: none;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* ---- STATS STRIP ---- */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--accent); }
+.stat-k {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+.stat-v {
+  font-family: var(--display);
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-s { font-family: var(--mono); font-size: 9px; color: var(--text-muted); margin-top: 3px; }
+
+/* ---- PRODUCT GRID ---- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+
+/* ---- PRODUCT CARD ---- */
+.pcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  cursor: pointer;
+  animation: fadeUp 0.4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(10px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.pcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,212,255,0.08);
+}
+
+.pcard-top {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 10px;
+}
+.pcard-brand-row { display: flex; align-items: center; gap: 8px; }
+.brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.brand-name {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tier-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pcard-name {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-top: 5px;
+}
+.pcard-price {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  text-align: right;
+  flex-shrink: 0;
+}
+.pcard-price-note {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* CADR row */
+.cadr-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.cadr-cell {
+  padding: 8px 10px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.cadr-cell:last-child { border-right: none; }
+.cadr-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.cadr-num {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+.cadr-num.smoke { color: #00e676; }
+.cadr-num.dust { color: #00d4ff; }
+.cadr-num.pollen { color: #ffd32a; }
+
+/* Spec grid */
+.spec-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.sg-item { padding: 5px 14px; }
+.sg-k { font-family: var(--mono); font-size: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.sg-v { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--text-dim); margin-top: 1px; }
+.sg-v.hi { color: var(--accent); }
+
+/* Feature tags */
+.feat-row {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.ftag {
+  font-family: var(--mono);
+  font-size: 8px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.ftag.on { border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.06); color: var(--accent); }
+
+/* Value score */
+.value-row {
+  padding: 10px 14px 12px;
+}
+.value-top {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 9px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.value-track { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.value-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 2px; transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+
+/* ---- PRICE MAP ---- */
+#priceMap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+}
+.map-title {
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.map-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 20px;
+}
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  margin-bottom: 16px;
+}
+.ml-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+}
+.ml-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.map-wrap {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+/* Axis labels */
+.map-axis-x {
+  position: absolute; bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.map-axis-y {
+  position: absolute; left: 8px; top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Grid lines */
+.map-vline, .map-hline {
+  position: absolute;
+  background: rgba(255,255,255,0.04);
+}
+.map-vline { width: 1px; top: 0; bottom: 0; }
+.map-hline { height: 1px; left: 0; right: 0; }
+/* Dot */
+.map-dot {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 2;
+}
+.map-dot:hover { transform: translate(-50%,-50%) scale(1.8); z-index: 10; }
+.map-dot:hover .map-tooltip { opacity: 1; pointer-events: auto; }
+.map-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 180px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 20;
+  white-space: nowrap;
+}
+.map-tooltip-name {
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+}
+.map-tooltip-row {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--text-dim);
+  margin-top: 2px;
+}
+/* Value zones */
+.value-zone {
+  position: absolute;
+  border-radius: 4px;
+  pointer-events: none;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 3px 6px;
+}
+
+/* ---- TABLE VIEW ---- */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.data-table th {
+  background: var(--surface2);
+  padding: 11px 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+.data-table th:hover { color: var(--accent); }
+.data-table th.sorted { color: var(--accent); }
+.data-table td {
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+.data-table td.brand-cell { font-weight: 600; }
+.data-table td.name-cell { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--text); }
+.data-table td.price-cell { font-family: var(--display); font-size: 15px; color: var(--green); letter-spacing: 0.04em; }
+.data-table td.best { color: var(--green); font-weight: 700; }
+.data-table td.cadr-cell { color: var(--accent); font-weight: 600; }
+.data-table td.value-cell { color: var(--yellow); font-weight: 700; }
+
+/* ---- BRAND COMPARISON ---- */
+.brand-section { margin-bottom: 32px; }
+.brand-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-color-bar { width: 4px; height: 32px; border-radius: 2px; }
+.brand-header-name {
+  font-family: var(--display);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+}
+.brand-header-url {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-muted); margin-left: auto;
+  letter-spacing: 0.06em;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  header, main { padding-left: 16px; padding-right: 16px; }
+  .tab-nav { padding: 0 16px; }
+  .stats-strip { grid-template-columns: repeat(3, 1fr); }
+  .product-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .product-grid { grid-template-columns: 1fr; }
+}
+
+/* Loading skeleton */
+.skeleton { animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0%,100%{opacity:.3} 50%{opacity:.8} }
+.skel-rect { background: var(--surface3); border-radius: 4px; }
+
+/* Tier pill colors */
+.tier-small { background: rgba(0,230,118,0.1); color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+.tier-medium { background: rgba(0,212,255,0.1); color: #00d4ff; border: 1px solid rgba(0,212,255,0.2); }
+.tier-large { background: rgba(255,107,53,0.1); color: #ff6b35; border: 1px solid rgba(255,107,53,0.2); }
+.tier-xlarge { background: rgba(255,71,87,0.1); color: #ff4757; border: 1px solid rgba(255,71,87,0.2); }
+.tier-commercial { background: rgba(189,147,249,0.1); color: #bd93f9; border: 1px solid rgba(189,147,249,0.2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">MARKET DATA</div>
+    <div>
+      <div class="logo-title">US AIR PURIFIER COMPARISON</div>
+      <div class="logo-sub">COWAY · LEVOIT · WINIX · PUROAIR · BLUEAIR · DYSON · SHARK — 공식 사이트 기준</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="last-update">마지막 업데이트: <span id="lastUpdate">—</span></div>
+    <button class="refresh-btn" id="refreshBtn" onclick="initDashboard()">
+      <span class="ri" style="display:inline-block">⟳</span> REFRESH DATA
+    </button>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview', this)">📊 Overview</button>
+  <button class="tab-btn" onclick="switchTab('grid', this)">⊞ Product Grid</button>
+  <button class="tab-btn" onclick="switchTab('pricemap', this)">📍 Price Map</button>
+  <button class="tab-btn" onclick="switchTab('table', this)">☰ Full Table</button>
+  <button class="tab-btn" onclick="switchTab('byBrand', this)">🏷 By Brand</button>
+</nav>
+
+<main>
+  <!-- OVERVIEW TAB -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="stats-strip" id="statsStrip"></div>
+    <div id="overviewCharts"></div>
+  </div>
+
+  <!-- GRID TAB -->
+  <div class="tab-panel" id="tab-grid">
+    <div class="filter-bar">
+      <span class="filter-label">브랜드</span>
+      <button class="chip active" onclick="applyFilter('brand','all',this)">전체</button>
+      <button class="chip" onclick="applyFilter('brand','Coway',this)">Coway</button>
+      <button class="chip" onclick="applyFilter('brand','Levoit',this)">Levoit</button>
+      <button class="chip" onclick="applyFilter('brand','Winix',this)">Winix</button>
+      <button class="chip" onclick="applyFilter('brand','PuroAir',this)">PuroAir</button>
+      <button class="chip" onclick="applyFilter('brand','Blueair',this)">Blueair</button>
+      <button class="chip" onclick="applyFilter('brand','Dyson',this)">Dyson</button>
+      <button class="chip" onclick="applyFilter('brand','Shark',this)">Shark</button>
+      <div class="sep"></div>
+      <span class="filter-label">크기</span>
+      <button class="chip" onclick="applyFilter('tier','small',this)">소형</button>
+      <button class="chip" onclick="applyFilter('tier','medium',this)">중형</button>
+      <button class="chip" onclick="applyFilter('tier','large',this)">대형</button>
+      <button class="chip" onclick="applyFilter('tier','xlarge',this)">초대형</button>
+      <select class="sort-sel" onchange="applySort(this.value)">
+        <option value="price_asc">가격 낮은순</option>
+        <option value="price_desc">가격 높은순</option>
+        <option value="cadr_desc">CADR 높은순</option>
+        <option value="value_desc">가성비 높은순</option>
+        <option value="coverage_desc">커버리지 높은순</option>
+      </select>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+
+  <!-- PRICE MAP TAB -->
+  <div class="tab-panel" id="tab-pricemap">
+    <div id="priceMap">
+      <div class="map-title">PRICE MAP — CADR vs. PRICE</div>
+      <div class="map-sub">가로축: CADR (CFM) · 세로축: 가격 ($) · 점 크기: 커버리지 반영 · 오른쪽 아래 = 고가성비</div>
+      <div class="map-legend" id="mapLegend"></div>
+      <div class="map-wrap" id="mapWrap">
+        <div class="map-axis-x">CADR (CFM) →</div>
+        <div class="map-axis-y">← PRICE ($)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE TAB -->
+  <div class="tab-panel" id="tab-table">
+    <div style="overflow-x:auto; border-radius:10px;">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th onclick="tableSort('brand')">브랜드 ↕</th>
+            <th onclick="tableSort('name')">모델명 ↕</th>
+            <th onclick="tableSort('tier')">크기 ↕</th>
+            <th onclick="tableSort('price')">가격 ↕</th>
+            <th onclick="tableSort('cadrSmoke')">CADR 연기 ↕</th>
+            <th onclick="tableSort('cadrDust')">CADR 먼지 ↕</th>
+            <th onclick="tableSort('cadrPollen')">CADR 꽃가루 ↕</th>
+            <th onclick="tableSort('avgCadr')">CADR 평균 ↕</th>
+            <th onclick="tableSort('coverage')">커버리지 2ACH ↕</th>
+            <th onclick="tableSort('noise')">소음(최소) ↕</th>
+            <th onclick="tableSort('power')">소비전력 ↕</th>
+            <th onclick="tableSort('valueScore')">가성비 점수 ↕</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BY BRAND TAB -->
+  <div class="tab-panel" id="tab-byBrand">
+    <div id="brandSections"></div>
+  </div>
+</main>
+
+<script>
+// =============================================
+// DATA — 공식 사이트 기준 (2025.03)
+// =============================================
+const BRAND_COLORS = {
+  'Coway':   '#00e676',
+  'Levoit':  '#ff4757',
+  'Winix':   '#00d4ff',
+  'PuroAir': '#bd93f9',
+  'Blueair': '#4d9de0',
+  'Dyson':   '#ff6b35',
+  'Shark':   '#ffd32a',
+};
+
+const BRAND_URLS = {
+  'Coway':   'cowaymega.com',
+  'Levoit':  'levoit.com',
+  'Winix':   'winixamerica.com',
+  'PuroAir': 'getpuroair.com',
+  'Blueair': 'blueair.com',
+  'Dyson':   'dyson.com',
+  'Shark':   'sharkclean.com',
+};
+
+const rawData = [
+  // ── COWAY ──
+  { brand:'Coway', name:'Airmega Aim',       tier:'small',    price:89,   cadrSmoke:66,  cadrDust:75,  cadrPollen:88,  coverage:246,  noise:38, power:33,  wifi:false, hepa:'HEPA', filterLife:'8mo',  features:['Fan기능','Remote','Auto'], url:'https://cowaymega.com/products/airmega-aim' },
+  { brand:'Coway', name:'Airmega 100',        tier:'small',    price:129,  cadrSmoke:108, cadrDust:124, cadrPollen:112, coverage:405,  noise:20, power:25,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Night Light','Auto','에너지스타'], url:'https://cowaymega.com/products/airmega-100' },
+  { brand:'Coway', name:'Airmega 150',        tier:'small',    price:179,  cadrSmoke:153, cadrDust:161, cadrPollen:220, coverage:518,  noise:20, power:35,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Auto','Filter Indicator'], url:'https://cowaymega.com/products/airmega-150' },
+  { brand:'Coway', name:'Mighty AP-1512HH',   tier:'medium',   price:109,  cadrSmoke:233, cadrDust:246, cadrPollen:240, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Timer','Bipolar'], url:'https://cowaymega.com/products/mighty-ap-1512hh' },
+  { brand:'Coway', name:'Airmega 200M',       tier:'medium',   price:149,  cadrSmoke:246, cadrDust:249, cadrPollen:277, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Bipolar Ion'], url:'https://cowaymega.com/products/airmega-200m' },
+  { brand:'Coway', name:'Airmega 250',        tier:'large',    price:279,  cadrSmoke:249, cadrDust:261, cadrPollen:230, coverage:930,  noise:22, power:64,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Rapid Mode'], url:'https://cowaymega.com/products/airmega-250' },
+  { brand:'Coway', name:'Airmega 300',        tier:'large',    price:349,  cadrSmoke:285, cadrDust:306, cadrPollen:339, coverage:1256, noise:22, power:57,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Dual Intake'], url:'https://cowaymega.com/products/airmega-300' },
+  { brand:'Coway', name:'Airmega 350',        tier:'large',    price:399,  cadrSmoke:352, cadrDust:376, cadrPollen:450, coverage:1320, noise:21, power:62,  wifi:false, hepa:'HEPA', filterLife:'12mo+', features:['Turbo','Custom Filter'], url:'https://cowaymega.com/products/airmega-350' },
+  { brand:'Coway', name:'Airmega 400',        tier:'xlarge',   price:449,  cadrSmoke:328, cadrDust:328, cadrPollen:400, coverage:1560, noise:22, power:66,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Dual HEPA'], url:'https://cowaymega.com/products/airmega-400' },
+  { brand:'Coway', name:'Airmega 450',        tier:'xlarge',   price:549,  cadrSmoke:439, cadrDust:445, cadrPollen:450, coverage:1643, noise:23, power:72,  wifi:false, hepa:'HEPA', filterLife:'12mo+', features:['Eagle Vane','Custom Filter'], url:'https://cowaymega.com/products/airmega-450' },
+  { brand:'Coway', name:'Airmega ProX',       tier:'commercial',price:799, cadrSmoke:568, cadrDust:580, cadrPollen:450, coverage:2126, noise:23, power:65,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Turbo','Silent','상업용'], url:'https://cowaymega.com/products/airmega-prox' },
+
+  // ── LEVOIT ──
+  { brand:'Levoit', name:'Core Mini-P',       tier:'small',    price:49,   cadrSmoke:30,  cadrDust:35,  cadrPollen:32,  coverage:53,   noise:25, power:7,   wifi:false, hepa:'HEPA', filterLife:'6mo', features:['Aromatherapy','Night Light'], url:'https://levoit.com/products/core-mini-p-air-purifier' },
+  { brand:'Levoit', name:'Core 300-P',        tier:'small',    price:99,   cadrSmoke:141, cadrDust:145, cadrPollen:153, coverage:219,  noise:24, power:45,  wifi:false, hepa:'HEPA', filterLife:'6mo', features:['VortexAir','3-Stage'], url:'https://levoit.com/products/core300-p-air-purifier' },
+  { brand:'Levoit', name:'Core 300S-P',       tier:'small',    price:109,  cadrSmoke:141, cadrDust:145, cadrPollen:153, coverage:219,  noise:22, power:45,  wifi:true,  hepa:'HEPA', filterLife:'6mo', features:['WiFi','Alexa','VeSync App'], url:'https://levoit.com/products/core-300s-p-smart-air-purifier' },
+  { brand:'Levoit', name:'Vital 100-P',       tier:'small',    price:99,   cadrSmoke:105, cadrDust:108, cadrPollen:115, coverage:163,  noise:23, power:55,  wifi:false, hepa:'HEPA', filterLife:'6mo', features:['Auto Mode','Energy Star'], url:'https://levoit.com/products/vital100-air-purifier' },
+  { brand:'Levoit', name:'Core 400S-P',       tier:'large',    price:199,  cadrSmoke:260, cadrDust:280, cadrPollen:295, coverage:403,  noise:24, power:38,  wifi:true,  hepa:'HEPA', filterLife:'6mo', features:['WiFi','Alexa','Laser Sensor'], url:'https://levoit.com/products/core-400s-p-smart-true-hepa-air-purifier' },
+  { brand:'Levoit', name:'Core 600S-P',       tier:'xlarge',   price:259,  cadrSmoke:380, cadrDust:400, cadrPollen:410, coverage:635,  noise:26, power:55,  wifi:true,  hepa:'HEPA', filterLife:'6mo', features:['WiFi','Alexa','PM Display'], url:'https://levoit.com/products/core-600s-p-smart-air-purifier' },
+  { brand:'Levoit', name:'EverestAir-P',      tier:'xlarge',   price:299,  cadrSmoke:500, cadrDust:530, cadrPollen:540, coverage:549,  noise:26, power:65,  wifi:true,  hepa:'HEPA', filterLife:'6mo', features:['WiFi','PM1/2.5/10','Vent Adjust'], url:'https://levoit.com/products/everestair-p-smart-air-purifier' },
+
+  // ── WINIX ──
+  { brand:'Winix', name:'A231',               tier:'small',    price:89,   cadrSmoke:116, cadrDust:125, cadrPollen:118, coverage:255,  noise:27, power:28,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['PlasmaWave','Auto','Sleep'], url:'https://www.winixamerica.com/product/a231/' },
+  { brand:'Winix', name:'C535',               tier:'medium',   price:119,  cadrSmoke:232, cadrDust:240, cadrPollen:246, coverage:360,  noise:27, power:52,  wifi:false, hepa:'HEPA 99.99%', filterLife:'12mo', features:['PlasmaWave','Sleep','AHAM'], url:'https://www.winixamerica.com/product/c535/' },
+  { brand:'Winix', name:'5500-2',             tier:'large',    price:149,  cadrSmoke:232, cadrDust:243, cadrPollen:246, coverage:360,  noise:27, power:52,  wifi:false, hepa:'HEPA 99.99%', filterLife:'12mo', features:['PlasmaWave','Auto','Sleep'], url:'https://www.winixamerica.com/product/5500-2/' },
+  { brand:'Winix', name:'C545',               tier:'large',    price:169,  cadrSmoke:243, cadrDust:252, cadrPollen:258, coverage:360,  noise:27, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','App','PlasmaWave'], url:'https://www.winixamerica.com/product/c545/' },
+  { brand:'Winix', name:'5510',               tier:'large',    price:199,  cadrSmoke:250, cadrDust:260, cadrPollen:262, coverage:363,  noise:23, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','App','Carbon Pellets'], url:'https://www.winixamerica.com/product/5510/' },
+  { brand:'Winix', name:'AM90',               tier:'large',    price:189,  cadrSmoke:243, cadrDust:252, cadrPollen:258, coverage:360,  noise:27, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','Alexa','PlasmaWave'], url:'https://www.winixamerica.com/product/am90/' },
+  { brand:'Winix', name:'XQ',                 tier:'xlarge',   price:349,  cadrSmoke:295, cadrDust:316, cadrPollen:326, coverage:700,  noise:23, power:73,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','Triple Sensor','PM2.5'], url:'https://www.winixamerica.com/product/xq/' },
+
+  // ── PUROAIR ──
+  { brand:'PuroAir', name:'HEPA 14 240',      tier:'medium',   price:139,  cadrSmoke:181, cadrDust:183, cadrPollen:204, coverage:300,  noise:22, power:45,  wifi:false, hepa:'HEPA 14', filterLife:'90d', features:['H14 Filter','Auto','Energy Star'], url:'https://getpuroair.com/products/puroair-240-air-purifier' },
+  { brand:'PuroAir', name:'HEPA 14 400',      tier:'xlarge',   price:239,  cadrSmoke:380, cadrDust:400, cadrPollen:420, coverage:1073, noise:35, power:70,  wifi:false, hepa:'HEPA 14', filterLife:'90d', features:['H14 Filter','Auto Sensor'], url:'https://getpuroair.com/products/puroair-400-air-purifier' },
+
+  // ── BLUEAIR ──
+  { brand:'Blueair', name:'Blue Pure 411i Max', tier:'small',  price:129,  cadrSmoke:112, cadrDust:112, cadrPollen:112, coverage:175,  noise:17, power:9,   wifi:true,  hepa:'HEPASilent', filterLife:'6mo', features:['HEPASilent','WiFi','Fabric Pre'], url:'https://www.blueair.com/products/blue-pure-411i-max' },
+  { brand:'Blueair', name:'Blue Pure 511',      tier:'small',  price:99,   cadrSmoke:120, cadrDust:118, cadrPollen:125, coverage:180,  noise:17, power:10,  wifi:false, hepa:'HEPASilent', filterLife:'6mo', features:['HEPASilent','Quiet Mark'], url:'https://www.blueair.com/products/blue-pure-511' },
+  { brand:'Blueair', name:'Blue Pure 311i Max', tier:'medium', price:199,  cadrSmoke:250, cadrDust:250, cadrPollen:250, coverage:387,  noise:18, power:36,  wifi:true,  hepa:'HEPASilent', filterLife:'6mo', features:['HEPASilent','WiFi','PM Display'], url:'https://www.blueair.com/products/blue-pure-311i-max' },
+  { brand:'Blueair', name:'Blue Pure 311i+ Max',tier:'medium', price:249,  cadrSmoke:300, cadrDust:300, cadrPollen:300, coverage:465,  noise:18, power:36,  wifi:true,  hepa:'HEPASilent', filterLife:'6mo', features:['HEPASilent','WiFi','1100ft² 1ACH'], url:'https://www.blueair.com/products/blue-pure-311i-plus-max' },
+  { brand:'Blueair', name:'Blue Pure 211i Max', tier:'xlarge', price:299,  cadrSmoke:410, cadrDust:410, cadrPollen:410, coverage:635,  noise:24, power:60,  wifi:true,  hepa:'HEPASilent', filterLife:'6mo', features:['HEPASilent','WiFi','Alexa'], url:'https://www.blueair.com/products/blue-pure-211i-max' },
+
+  // ── DYSON ──
+  { brand:'Dyson', name:'HushJet Compact',    tier:'small',    price:349,  cadrSmoke:120, cadrDust:130, cadrPollen:125, coverage:203,  noise:24, power:35,  wifi:true,  hepa:'HEPA 99.97%', filterLife:'60mo', features:['Jet Engine','MyDyson App','5yr Filter'], url:'https://www.dyson.com/air-treatment/air-purifiers/hushjet' },
+  { brand:'Dyson', name:'Purifier Cool TP09', tier:'large',    price:599,  cadrSmoke:180, cadrDust:190, cadrPollen:185, coverage:400,  noise:43, power:40,  wifi:true,  hepa:'HEPA H13', filterLife:'12mo', features:['Fan+Purifier','MyDyson','LCD Screen'], url:'https://www.dyson.com' },
+  { brand:'Dyson', name:'Purifier Hot+Cool HP09',tier:'large', price:649,  cadrSmoke:180, cadrDust:190, cadrPollen:185, coverage:400,  noise:43, power:40,  wifi:true,  hepa:'HEPA H13', filterLife:'12mo', features:['Heater+Fan+Purifier','MyDyson'], url:'https://www.dyson.com' },
+  { brand:'Dyson', name:'Big+Quiet BP04',     tier:'xlarge',   price:899,  cadrSmoke:320, cadrDust:340, cadrPollen:330, coverage:1000, noise:56, power:100, wifi:true,  hepa:'HEPA H13', filterLife:'24mo', features:['32ft Projection','CO2 Sensor','Formaldehyde'], url:'https://www.dyson.com/air-treatment/air-purifiers/big-quiet-formaldehyde/prussian-blue-gold-bp04' },
+
+  // ── SHARK ──
+  { brand:'Shark', name:'HP102',              tier:'small',    price:179,  cadrSmoke:150, cadrDust:153, cadrPollen:155, coverage:500,  noise:26, power:43,  wifi:true,  hepa:'HEPA 99.98%', filterLife:'9mo', features:['Clean Sense IQ','WiFi','NANOSEAL'], url:'https://www.sharkclean.com/products/shark-air-purifier-with-true-hepa-zidHP102' },
+  { brand:'Shark', name:'HP202 MAX',          tier:'large',    price:249,  cadrSmoke:200, cadrDust:210, cadrPollen:215, coverage:1200, noise:26, power:50,  wifi:true,  hepa:'HEPA 99.98%', filterLife:'9mo', features:['Odor Neutralizer','Clean Sense IQ'], url:'https://www.sharkclean.com/products/shark-air-purifier-max-with-true-hepa-zidHP202' },
+  { brand:'Shark', name:'HP302 NeverChange',  tier:'large',    price:399,  cadrSmoke:220, cadrDust:230, cadrPollen:228, coverage:1400, noise:26, power:52,  wifi:true,  hepa:'HEPA 99.98%', filterLife:'5yr', features:['5yr Filter Life','NeverChange','WiFi'], url:'https://www.sharkclean.com/products/shark-neverchange-air-purifier-max-zidHP302' },
+  { brand:'Shark', name:'HP232 Clean Sense',  tier:'large',    price:329,  cadrSmoke:210, cadrDust:215, cadrPollen:220, coverage:1300, noise:26, power:52,  wifi:true,  hepa:'HEPA 99.98%', filterLife:'9mo', features:['Odor Neutralizer','Clean Sense IQ','WiFi'], url:'https://www.sharkclean.com/products/shark-clean-sense-air-purifier-max' },
+];
+
+// ──────────────────────────────
+// COMPUTED FIELDS
+// ──────────────────────────────
+const TIER_LABELS = { small:'소형', medium:'중형', large:'대형', xlarge:'초대형', commercial:'상업용' };
+
+rawData.forEach(p => {
+  p.avgCadr = Math.round((p.cadrSmoke + p.cadrDust + p.cadrPollen) / 3);
+  p.valueScore = Math.round((p.avgCadr / p.price) * 100);
+  p.tierLabel = TIER_LABELS[p.tier] || p.tier;
+});
+const maxValue = Math.max(...rawData.map(p => p.valueScore));
+rawData.forEach(p => p.valueNorm = Math.round((p.valueScore / maxValue) * 100));
+
+// ──────────────────────────────
+// STATE
+// ──────────────────────────────
+let filterBrand = 'all';
+let filterTier = 'all';
+let sortMode = 'price_asc';
+let tableSortKey = 'price';
+let tableSortAsc = true;
+
+// ──────────────────────────────
+// UTILS
+// ──────────────────────────────
+function getFiltered() {
+  let list = [...rawData];
+  if (filterBrand !== 'all') list = list.filter(p => p.brand === filterBrand);
+  if (filterTier !== 'all') list = list.filter(p => p.tier === filterTier);
+  return sortList(list, sortMode);
+}
+
+function sortList(list, mode) {
+  if (mode === 'price_asc') return list.sort((a,b) => a.price - b.price);
+  if (mode === 'price_desc') return list.sort((a,b) => b.price - a.price);
+  if (mode === 'cadr_desc') return list.sort((a,b) => b.avgCadr - a.avgCadr);
+  if (mode === 'value_desc') return list.sort((a,b) => b.valueNorm - a.valueNorm);
+  if (mode === 'coverage_desc') return list.sort((a,b) => b.coverage - a.coverage);
+  return list;
+}
+
+function fmtNum(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return n.toString();
+}
+
+function tierClass(tier) {
+  return `tier-${tier}`;
+}
+
+// ──────────────────────────────
+// RENDER CARDS
+// ──────────────────────────────
+function renderCards() {
+  const list = getFiltered();
+  const grid = document.getElementById('productGrid');
+  if (!grid) return;
+  grid.innerHTML = list.map((p, i) => {
+    const bc = BRAND_COLORS[p.brand] || '#888';
+    return `
+    <div class="pcard" style="animation-delay:${i*0.04}s;border-left:3px solid ${bc}" onclick="window.open('${p.url}','_blank')">
+      <div class="pcard-top">
+        <div>
+          <div class="pcard-brand-row">
+            <div class="brand-dot" style="background:${bc}"></div>
+            <span class="brand-name" style="color:${bc}">${p.brand}</span>
+            <span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span>
+          </div>
+          <div class="pcard-name">${p.name}</div>
+        </div>
+        <div>
+          <div class="pcard-price">$${p.price}</div>
+          <div class="pcard-price-note">정가</div>
+        </div>
+      </div>
+
+      <div class="cadr-strip">
+        <div class="cadr-cell">
+          <div class="cadr-lbl">Smoke</div>
+          <div class="cadr-num smoke">${p.cadrSmoke}</div>
+        </div>
+        <div class="cadr-cell">
+          <div class="cadr-lbl">Dust</div>
+          <div class="cadr-num dust">${p.cadrDust}</div>
+        </div>
+        <div class="cadr-cell">
+          <div class="cadr-lbl">Pollen</div>
+          <div class="cadr-num pollen">${p.cadrPollen}</div>
+        </div>
+      </div>
+
+      <div class="spec-grid">
+        <div class="sg-item">
+          <div class="sg-k">Coverage 2ACH</div>
+          <div class="sg-v hi">${p.coverage.toLocaleString()} ft²</div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-k">Noise Min</div>
+          <div class="sg-v">${p.noise} dB</div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-k">Power</div>
+          <div class="sg-v">${p.power}W</div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-k">Filter</div>
+          <div class="sg-v">${p.hepa}</div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-k">Filter Life</div>
+          <div class="sg-v">${p.filterLife}</div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-k">WiFi</div>
+          <div class="sg-v">${p.wifi ? '✅ 있음' : '—'}</div>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        ${p.features.map(f => `<span class="ftag on">${f}</span>`).join('')}
+      </div>
+
+      <div class="value-row">
+        <div class="value-top">
+          <span>CADR 가성비 점수</span>
+          <span style="color:${p.valueNorm >= 70 ? 'var(--green)' : p.valueNorm >= 40 ? 'var(--yellow)' : 'var(--text-muted)'}">${p.valueNorm}/100</span>
+        </div>
+        <div class="value-track">
+          <div class="value-fill" style="width:${p.valueNorm}%;background:${p.valueNorm >= 70 ? 'var(--green)' : p.valueNorm >= 40 ? 'var(--yellow)' : 'var(--accent)'}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ──────────────────────────────
+// RENDER TABLE
+// ──────────────────────────────
+function renderTable() {
+  const list = [...rawData].sort((a, b) => {
+    const va = a[tableSortKey]; const vb = b[tableSortKey];
+    if (typeof va === 'string') return tableSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return tableSortAsc ? va - vb : vb - va;
+  });
+
+  const maxes = {
+    avgCadr: Math.max(...list.map(p=>p.avgCadr)),
+    coverage: Math.max(...list.map(p=>p.coverage)),
+    valueNorm: Math.max(...list.map(p=>p.valueNorm)),
+  };
+  const mins = {
+    price: Math.min(...list.map(p=>p.price)),
+    noise: Math.min(...list.map(p=>p.noise)),
+    power: Math.min(...list.map(p=>p.power)),
+  };
+
+  document.getElementById('tableBody').innerHTML = list.map(p => {
+    const bc = BRAND_COLORS[p.brand] || '#888';
+    return `
+    <tr onclick="window.open('${p.url}','_blank')" style="cursor:pointer">
+      <td class="brand-cell" style="color:${bc}">${p.brand}</td>
+      <td class="name-cell">${p.name}</td>
+      <td><span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span></td>
+      <td class="price-cell${p.price===mins.price?' best':''}">$${p.price}</td>
+      <td class="cadr-cell">${p.cadrSmoke}</td>
+      <td class="cadr-cell">${p.cadrDust}</td>
+      <td class="cadr-cell">${p.cadrPollen}</td>
+      <td class="cadr-cell${p.avgCadr===maxes.avgCadr?' best':''}">${p.avgCadr}</td>
+      <td class="${p.coverage===maxes.coverage?'best':''}">${p.coverage.toLocaleString()}</td>
+      <td class="${p.noise===mins.noise?'best':''}">${p.noise} dB</td>
+      <td class="${p.power===mins.power?'best':''}">${p.power}W</td>
+      <td class="value-cell${p.valueNorm===maxes.valueNorm?' best':''}">${p.valueNorm}/100</td>
+    </tr>`;
+  }).join('');
+}
+
+function tableSort(key) {
+  if (tableSortKey === key) { tableSortAsc = !tableSortAsc; }
+  else { tableSortKey = key; tableSortAsc = true; }
+  renderTable();
+}
+
+// ──────────────────────────────
+// PRICE MAP
+// ──────────────────────────────
+function renderPriceMap() {
+  const wrap = document.getElementById('mapWrap');
+  if (!wrap) return;
+
+  // Clear existing dots (keep axes)
+  wrap.querySelectorAll('.map-dot,.map-vline,.map-hline,.value-zone').forEach(el => el.remove());
+
+  const PAD = { left: 60, right: 30, top: 30, bottom: 40 };
+  const W = wrap.offsetWidth || 900;
+  const H = wrap.offsetHeight || 520;
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const maxCADR = Math.max(...rawData.map(p => p.avgCadr)) * 1.1;
+  const maxPrice = Math.max(...rawData.map(p => p.price)) * 1.1;
+  const minCADR = 0;
+  const minPrice = 0;
+
+  // Grid lines
+  [0.25, 0.5, 0.75].forEach(r => {
+    const vl = document.createElement('div');
+    vl.className = 'map-vline';
+    vl.style.left = (PAD.left + r * plotW) + 'px';
+    wrap.appendChild(vl);
+
+    const hl = document.createElement('div');
+    hl.className = 'map-hline';
+    hl.style.top = (PAD.top + r * plotH) + 'px';
+    wrap.appendChild(hl);
+  });
+
+  // Value zone (right-bottom = best value)
+  const vz = document.createElement('div');
+  vz.className = 'value-zone';
+  vz.style.cssText = `right:${PAD.right+8}px;bottom:${PAD.bottom+8}px;color:rgba(0,230,118,0.5);font-size:9px;`;
+  vz.textContent = '▼ 고가성비 존';
+  wrap.appendChild(vz);
+
+  // Dots
+  rawData.forEach(p => {
+    const x = PAD.left + (p.avgCadr / maxCADR) * plotW;
+    const y = PAD.top + (1 - p.price / maxPrice) * plotH;
+    const bc = BRAND_COLORS[p.brand] || '#888';
+    const size = Math.max(10, Math.min(22, 8 + p.coverage / 120));
+
+    const dot = document.createElement('div');
+    dot.className = 'map-dot';
+    dot.style.cssText = `
+      left:${x}px; top:${y}px;
+      width:${size}px; height:${size}px;
+      background:${bc};
+      border:2px solid rgba(255,255,255,0.3);
+      box-shadow:0 0 8px ${bc}88;
+    `;
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'map-tooltip';
+    tooltip.innerHTML = `
+      <div class="map-tooltip-name" style="color:${bc}">${p.brand} ${p.name}</div>
+      <div class="map-tooltip-row">💰 $${p.price}</div>
+      <div class="map-tooltip-row">💨 Avg CADR: ${p.avgCadr} CFM</div>
+      <div class="map-tooltip-row">📐 Coverage: ${p.coverage.toLocaleString()} ft²</div>
+      <div class="map-tooltip-row">⭐ 가성비: ${p.valueNorm}/100</div>
+    `;
+    dot.appendChild(tooltip);
+    wrap.appendChild(dot);
+  });
+
+  // Legend
+  const legendEl = document.getElementById('mapLegend');
+  if (legendEl) {
+    legendEl.innerHTML = Object.entries(BRAND_COLORS).map(([b, c]) =>
+      `<div class="ml-item"><div class="ml-dot" style="background:${c}"></div>${b}</div>`
+    ).join('');
+  }
+}
+
+// ──────────────────────────────
+// OVERVIEW
+// ──────────────────────────────
+function renderOverview() {
+  // Stats strip
+  const total = rawData.length;
+  const brands = [...new Set(rawData.map(p=>p.brand))].length;
+  const minPrice = Math.min(...rawData.map(p=>p.price));
+  const maxPrice = Math.max(...rawData.map(p=>p.price));
+  const maxCADR = Math.max(...rawData.map(p=>p.avgCadr));
+  const bestValue = rawData.find(p => p.valueNorm === 100);
+
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat-card"><div class="stat-k">총 제품 수</div><div class="stat-v">${total}</div><div class="stat-s">${brands}개 브랜드</div></div>
+    <div class="stat-card"><div class="stat-k">가격 범위</div><div class="stat-v">$${minPrice}</div><div class="stat-s">~$${maxPrice}</div></div>
+    <div class="stat-card"><div class="stat-k">최고 CADR</div><div class="stat-v">${maxCADR}</div><div class="stat-s">평균 CADR CFM</div></div>
+    <div class="stat-card"><div class="stat-k">WiFi 모델</div><div class="stat-v">${rawData.filter(p=>p.wifi).length}</div><div class="stat-s">총 ${total}개 중</div></div>
+    <div class="stat-card"><div class="stat-k">최고 가성비</div><div class="stat-v" style="font-size:14px">${bestValue?.brand}</div><div class="stat-s">${bestValue?.name}</div></div>
+    <div class="stat-card"><div class="stat-k">최대 커버리지</div><div class="stat-v">${fmtNum(Math.max(...rawData.map(p=>p.coverage)))}</div><div class="stat-s">ft² (2ACH)</div></div>
+  `;
+
+  // Charts
+  const byBrand = {};
+  rawData.forEach(p => {
+    if (!byBrand[p.brand]) byBrand[p.brand] = [];
+    byBrand[p.brand].push(p);
+  });
+
+  const maxCADRAll = Math.max(...rawData.map(p=>p.avgCadr));
+  const maxPriceAll = Math.max(...rawData.map(p=>p.price));
+
+  // Build overview brand bars
+  let html = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-family:var(--display);font-size:14px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:16px;">▸ 브랜드별 평균 CADR</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">`;
+
+  Object.entries(byBrand).forEach(([brand, prods]) => {
+    const avg = Math.round(prods.reduce((s,p)=>s+p.avgCadr,0)/prods.length);
+    const bc = BRAND_COLORS[brand];
+    const pct = (avg/maxCADRAll*100).toFixed(1);
+    html += `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:72px;font-family:var(--mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;">${brand}</div>
+        <div style="flex:1;height:12px;background:var(--surface3);border-radius:2px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${bc};border-radius:2px;"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:${bc};width:36px;text-align:right;">${avg}</div>
+      </div>`;
+  });
+
+  html += `</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+      <div style="font-family:var(--display);font-size:14px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:16px;">▸ 브랜드별 평균 가격</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">`;
+
+  Object.entries(byBrand).forEach(([brand, prods]) => {
+    const avg = Math.round(prods.reduce((s,p)=>s+p.price,0)/prods.length);
+    const bc = BRAND_COLORS[brand];
+    const pct = (avg/maxPriceAll*100).toFixed(1);
+    html += `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:72px;font-family:var(--mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;">${brand}</div>
+        <div style="flex:1;height:12px;background:var(--surface3);border-radius:2px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${bc};border-radius:2px;"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:${bc};width:40px;text-align:right;">$${avg}</div>
+      </div>`;
+  });
+
+  html += `</div></div></div>`;
+
+  // Top 10 value ranking
+  const top10 = [...rawData].sort((a,b)=>b.valueNorm-a.valueNorm).slice(0,10);
+  html += `
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;">
+    <div style="font-family:var(--display);font-size:14px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:16px;">▸ TOP 10 가성비 랭킹 (CADR ÷ 가격)</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+    ${top10.map((p,i) => {
+      const bc = BRAND_COLORS[p.brand];
+      return `
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid ${bc}">
+        <span style="font-family:var(--display);font-size:18px;color:var(--text-muted);width:28px;">${i+1}</span>
+        <div style="flex:1">
+          <span style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text)">${p.brand} ${p.name}</span>
+          <span class="tier-badge ${tierClass(p.tier)}" style="margin-left:8px">${p.tierLabel}</span>
+        </div>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">CADR ${p.avgCadr} / $${p.price}</span>
+        <div style="width:120px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
+          <div style="width:${p.valueNorm}%;height:100%;background:${bc};border-radius:3px;"></div>
+        </div>
+        <span style="font-family:var(--mono);font-size:11px;color:${bc};width:48px;text-align:right">${p.valueNorm}/100</span>
+      </div>`;
+    }).join('')}
+    </div>
+  </div>`;
+
+  document.getElementById('overviewCharts').innerHTML = html;
+}
+
+// ──────────────────────────────
+// BY BRAND
+// ──────────────────────────────
+function renderByBrand() {
+  const brands = [...new Set(rawData.map(p=>p.brand))];
+  let html = '';
+  brands.forEach(brand => {
+    const prods = [...rawData].filter(p=>p.brand===brand).sort((a,b)=>a.price-b.price);
+    const bc = BRAND_COLORS[brand];
+    html += `
+    <div class="brand-section">
+      <div class="brand-header">
+        <div class="brand-color-bar" style="background:${bc}"></div>
+        <div class="brand-header-name" style="color:${bc}">${brand}</div>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${prods.length}개 모델</span>
+        <div class="brand-header-url">${BRAND_URLS[brand]}</div>
+      </div>
+      <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border);">
+        <table style="width:100%;border-collapse:collapse;background:var(--surface)">
+          <thead>
+            <tr style="background:var(--surface2)">
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)">모델</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)">크기</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">가격</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">CADR 연기</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">CADR 먼지</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">CADR 꽃가루</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">커버리지 2ACH</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">소음</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">전력</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)">가성비</th>
+              <th style="padding:9px 12px;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)">특징</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${prods.map(p => `
+            <tr style="cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''" onclick="window.open('${p.url}','_blank')">
+              <td style="padding:9px 12px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;border-bottom:1px solid var(--border)">${p.name}</td>
+              <td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span></td>
+              <td style="padding:9px 12px;font-family:var(--display);font-size:14px;color:var(--green);text-align:right;border-bottom:1px solid var(--border)">$${p.price}</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#00e676;text-align:right;border-bottom:1px solid var(--border)">${p.cadrSmoke}</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#00d4ff;text-align:right;border-bottom:1px solid var(--border)">${p.cadrDust}</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#ffd32a;text-align:right;border-bottom:1px solid var(--border)">${p.cadrPollen}</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);text-align:right;border-bottom:1px solid var(--border)">${p.coverage.toLocaleString()}</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:right;border-bottom:1px solid var(--border)">${p.noise}dB</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--text-dim);text-align:right;border-bottom:1px solid var(--border)">${p.power}W</td>
+              <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;text-align:right;border-bottom:1px solid var(--border);color:${p.valueNorm>=70?'var(--green)':p.valueNorm>=40?'var(--yellow)':'var(--text-muted)'}">${p.valueNorm}/100</td>
+              <td style="padding:9px 12px;border-bottom:1px solid var(--border)">
+                ${p.features.slice(0,3).map(f=>`<span style="font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:3px;border:1px solid rgba(0,212,255,0.2);background:rgba(0,212,255,0.05);color:var(--accent);margin-right:3px;white-space:nowrap;">${f}</span>`).join('')}
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+  document.getElementById('brandSections').innerHTML = html;
+}
+
+// ──────────────────────────────
+// FILTER / SORT HANDLERS
+// ──────────────────────────────
+function applyFilter(type, val, btn) {
+  if (type === 'brand') {
+    // If brand filter, reset tier to all and vice versa
+    filterBrand = val;
+    if (val !== 'all') filterTier = 'all';
+    document.querySelectorAll('#tab-grid .chip').forEach(b => b.classList.remove('active'));
+  } else {
+    filterTier = val;
+    if (val !== 'all') filterBrand = 'all';
+    document.querySelectorAll('#tab-grid .chip').forEach(b => b.classList.remove('active'));
+  }
+  // Restore 'all' active state if both reset
+  if (filterBrand === 'all' && filterTier === 'all') {
+    document.querySelector('#tab-grid .chip').classList.add('active');
+  }
+  btn.classList.add('active');
+  renderCards();
+}
+
+function applySort(val) {
+  sortMode = val;
+  renderCards();
+}
+
+// ──────────────────────────────
+// TAB SWITCH
+// ──────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+
+  if (id === 'pricemap') setTimeout(renderPriceMap, 50);
+  if (id === 'grid') renderCards();
+  if (id === 'table') renderTable();
+  if (id === 'byBrand') renderByBrand();
+}
+
+// ──────────────────────────────
+// INIT
+// ──────────────────────────────
+function initDashboard() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.querySelector('.ri').style.display = 'inline-block';
+
+  setTimeout(() => {
+    renderOverview();
+    renderCards();
+    renderTable();
+    renderByBrand();
+
+    // Update timestamp
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      now.toLocaleDateString('ko-KR') + ' ' + now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+
+    btn.classList.remove('spinning');
+  }, 600);
+}
+
+// Start
+initDashboard();
+</script>
+</body>
+</html>
