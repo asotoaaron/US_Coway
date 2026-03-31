@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>US Air Purifier Market — Brand Comparison Dashboard 2025</title>
+<title>US Air Purifier Market — Brand Comparison Dashboard v3.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -578,10 +578,10 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
 
 <header>
   <div class="logo">
-    <div class="logo-badge">MARKET DATA</div>
+    <div class="logo-badge">MARKET DATA v3.0</div>
     <div>
-      <div class="logo-title">US AIR PURIFIER COMPARISON</div>
-      <div class="logo-sub">COWAY · LEVOIT · WINIX · PUROAIR · BLUEAIR · DYSON · SHARK — 공식 사이트 기준</div>
+      <div class="logo-title">US AIR PURIFIER COMPARISON v3.0</div>
+      <div class="logo-sub">COWAY · LEVOIT · WINIX · PUROAIR · BLUEAIR · DYSON · SHARK — 공식 사이트 기준 | v3.0 · 2026.03</div>
     </div>
   </div>
   <div class="header-right">
@@ -682,7 +682,7 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
 
 <script>
 // =============================================
-// DATA — 공식 사이트 기준 (2026.03)
+// DATA — 공식 사이트 기준 (2026.03) | v3.0
 // =============================================
 const BRAND_COLORS = {
   'Coway':   '#00e676',
@@ -706,12 +706,12 @@ const BRAND_URLS = {
 
 const rawData = [
   // ── COWAY ──
-  { brand:'Coway', name:'Airmega Aim',       tier:'small',    price:89,   cadrSmoke:66,  cadrDust:75,  cadrPollen:88,  coverage:246,  noise:38, power:33,  wifi:false, hepa:'HEPA', filterLife:'8mo',  features:['Fan기능','Remote','Auto'], url:'https://cowaymega.com/products/airmega-aim' },
+  { brand:'Coway', name:'Airmega Aim',       tier:'small',    price:149.99,   cadrSmoke:66,  cadrDust:75,  cadrPollen:88,  coverage:246,  noise:38, power:33,  wifi:false, hepa:'HEPA', filterLife:'8mo',  features:['Fan기능','Remote','Auto'], url:'https://cowaymega.com/products/airmega-aim' },
   { brand:'Coway', name:'Airmega 100',        tier:'small',    price:79.99,  cadrSmoke:108, cadrDust:124, cadrPollen:112, coverage:405,  noise:20, power:25,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Night Light','Auto','에너지스타'], url:'https://cowaymega.com/products/airmega-100' },
-  { brand:'Coway', name:'Airmega 150',        tier:'small',    price:99.99,  cadrSmoke:153, cadrDust:161, cadrPollen:220, coverage:518,  noise:20, power:35,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Auto','Filter Indicator'], url:'https://cowaymega.com/products/airmega-150' },
-  { brand:'Coway', name:'Mighty AP-1512HH',   tier:'medium',   price:153.99,  cadrSmoke:233, cadrDust:246, cadrPollen:240, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Timer','Bipolar'], url:'https://cowaymega.com/products/mighty-ap-1512hh' },
-  { brand:'Coway', name:'Airmega 200M',       tier:'medium',   price:149,  cadrSmoke:246, cadrDust:249, cadrPollen:277, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Bipolar Ion'], url:'https://cowaymega.com/products/airmega-200m' },
-  { brand:'Coway', name:'Airmega 250',        tier:'large',    price:269.99,  cadrSmoke:249, cadrDust:261, cadrPollen:230, coverage:930,  noise:22, power:64,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Rapid Mode'], url:'https://cowaymega.com/products/airmega-250' },
+  { brand:'Coway', name:'Airmega 150',        tier:'small',    price:189.99,  cadrSmoke:153, cadrDust:161, cadrPollen:220, coverage:518,  noise:20, power:35,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Auto','Filter Indicator'], url:'https://cowaymega.com/products/airmega-150' },
+  { brand:'Coway', name:'Mighty AP-1512HH',   tier:'medium',   price:229.99,  cadrSmoke:233, cadrDust:246, cadrPollen:240, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Timer','Bipolar'], url:'https://cowaymega.com/products/mighty-ap-1512hh' },
+  { brand:'Coway', name:'Airmega 200M',       tier:'medium',   price:229.99,  cadrSmoke:246, cadrDust:249, cadrPollen:277, coverage:874,  noise:24, power:82,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Eco Mode','Bipolar Ion'], url:'https://cowaymega.com/products/airmega-200m' },
+  { brand:'Coway', name:'Airmega 250',        tier:'large',    price:339.00,  cadrSmoke:249, cadrDust:261, cadrPollen:230, coverage:930,  noise:22, power:64,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Rapid Mode'], url:'https://cowaymega.com/products/airmega-250' },
   { brand:'Coway', name:'Airmega 300',        tier:'large',    price:308.99,  cadrSmoke:285, cadrDust:306, cadrPollen:339, coverage:1256, noise:22, power:57,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Dual Intake'], url:'https://cowaymega.com/products/airmega-300' },
   { brand:'Coway', name:'Airmega 350',        tier:'large',    price:339.00,  cadrSmoke:352, cadrDust:376, cadrPollen:450, coverage:1320, noise:21, power:62,  wifi:false, hepa:'HEPA', filterLife:'12mo+', features:['Turbo','Custom Filter'], url:'https://cowaymega.com/products/airmega-350' },
   { brand:'Coway', name:'Airmega 400',        tier:'xlarge',   price:449,  cadrSmoke:328, cadrDust:328, cadrPollen:400, coverage:1560, noise:22, power:66,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['Smart Mode','Dual HEPA'], url:'https://cowaymega.com/products/airmega-400' },
