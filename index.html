@@ -593,9 +593,12 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
     </div>
   </div>
   <div class="header-right">
-    <div class="last-update">📅 2026.03 · v3.0 — 가격 클릭하여 직접 수정</div>
-    <button class="refresh-btn" onclick="resetAllPrices()" title="수정된 가격을 모두 초기화">
-      ↺ 가격 초기화
+    <div class="last-update">📅 <span id="lastUpdateLabel">2026.03 기준</span> · v3.0</div>
+    <button class="refresh-btn" id="livePriceBtn" onclick="fetchLivePrices()" title="공식 사이트 현재 가격 자동 업데이트">
+      ⟳ 가격 자동 업데이트
+    </button>
+    <button class="refresh-btn reset-btn" onclick="resetAllPrices()" title="수정된 가격 초기화" style="font-size:12px;padding:6px 12px;opacity:0.7;">
+      ↺ 초기화
     </button>
   </div>
 </header>
@@ -772,6 +775,11 @@ const rawData = [
 // ──────────────────────────────
 const TIER_LABELS = { small:'소형', medium:'중형', large:'대형', xlarge:'초대형', commercial:'상업용' };
 
+// ── Cloudflare Worker URL ────────────────────────
+// 배포 후 여기에 Worker URL 입력 (예: https://air-price-proxy.xxx.workers.dev)
+const WORKER_URL = 'https://summer-wood-dd81.aaron-166.workers.dev';
+// ─────────────────────────────────────────────────
+
 // ── 가격 편집 기능 ──────────────────────────────
 const PRICE_OVERRIDES = JSON.parse(localStorage.getItem('priceOverrides') || '{}');
 
@@ -808,7 +816,7 @@ function startEditPrice(el, brand, name) {
     rawData.forEach(p => { p.valueNorm = Math.round((p.valueScore / maxVal) * 100); });
     renderCards();
     renderTable();
-    updateOverview();
+    renderOverview();
   }
   input.addEventListener('blur', save);
   input.addEventListener('keydown', e => {
@@ -823,7 +831,59 @@ function resetAllPrices() {
   localStorage.removeItem('priceOverrides');
   renderCards();
   renderTable();
-  updateOverview();
+  renderOverview();
+}
+
+async function fetchLivePrices() {
+  if (!WORKER_URL) {
+    alert('Worker URL이 설정되지 않았습니다.\n\nindex.html의 WORKER_URL 변수에\nCloudflare Worker 주소를 입력해주세요.');
+    return;
+  }
+  const btn = document.getElementById('livePriceBtn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⟳ 가격 불러오는 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(WORKER_URL + '/prices');
+    if (!res.ok) throw new Error('Worker 응답 오류: ' + res.status);
+    const data = await res.json();
+
+    let updated = 0, failed = 0;
+    Object.entries(data.prices).forEach(([key, price]) => {
+      PRICE_OVERRIDES[key] = price;
+      updated++;
+    });
+    failed = data.errors || 0;
+
+    localStorage.setItem('priceOverrides', JSON.stringify(PRICE_OVERRIDES));
+
+    // 가성비 재계산
+    rawData.forEach(p => { p.valueScore = Math.round((p.avgCadr / getPrice(p)) * 100); });
+    const maxVal = Math.max(...rawData.map(p => p.valueScore));
+    rawData.forEach(p => { p.valueNorm = Math.round((p.valueScore / maxVal) * 100); });
+
+    renderCards();
+    renderTable();
+    renderOverview();
+
+    // 업데이트 날짜 저장
+    localStorage.setItem('lastPriceUpdate', data.updated || new Date().toISOString().slice(0,10));
+    updateLastUpdateLabel();
+
+    btn.innerHTML = `✓ ${updated}개 업데이트 완료${failed ? ' ('+failed+'개 실패)' : ''}`;
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+  } catch (e) {
+    alert('가격 업데이트 실패: ' + e.message);
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
+}
+
+function updateLastUpdateLabel() {
+  const saved = localStorage.getItem('lastPriceUpdate');
+  const el = document.getElementById('lastUpdateLabel');
+  if (el && saved) el.textContent = saved + ' 기준';
 }
 // ────────────────────────────────────────────────
 
@@ -1296,6 +1356,7 @@ function switchTab(id, btn) {
 // INIT (static render)
 // ──────────────────────────────
 function initDashboard() {
+  updateLastUpdateLabel();
   renderOverview();
   renderCards();
   renderTable();
