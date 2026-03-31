@@ -287,6 +287,14 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
   line-height: 1.3;
   margin-top: 5px;
 }
+
+/* 가격 편집 */
+.pcard-price { cursor: pointer; transition: color 0.15s; }
+.pcard-price:hover { color: #fff; text-decoration: underline dotted; }
+.price-edited { color: #f0a500 !important; }
+.price-cell { cursor: pointer; }
+.price-cell:hover { background: rgba(0,212,255,0.08) !important; }
+
 .pcard-price {
   font-family: var(--display);
   font-size: 22px;
@@ -585,9 +593,9 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
     </div>
   </div>
   <div class="header-right">
-    <div class="last-update">마지막 업데이트: <span id="lastUpdate">—</span></div>
-    <button class="refresh-btn" id="refreshBtn" onclick="openAiModal()">
-      <span class="ri" style="display:inline-block">⟳</span> AI 가격 업데이트
+    <div class="last-update">📅 2026.03 · v3.0 — 가격 클릭하여 직접 수정</div>
+    <button class="refresh-btn" onclick="resetAllPrices()" title="수정된 가격을 모두 초기화">
+      ↺ 가격 초기화
     </button>
   </div>
 </header>
@@ -730,7 +738,6 @@ const rawData = [
   // ── WINIX ──
   { brand:'Winix', name:'A231',               tier:'small',    price:129.99,   cadrSmoke:116, cadrDust:125, cadrPollen:118, coverage:255,  noise:27, power:28,  wifi:false, hepa:'HEPA', filterLife:'12mo', features:['PlasmaWave','Auto','Sleep'], url:'https://www.winixamerica.com/product/a231/' },
   { brand:'Winix', name:'C535',               tier:'medium',   price:154.99,  cadrSmoke:232, cadrDust:240, cadrPollen:246, coverage:360,  noise:27, power:52,  wifi:false, hepa:'HEPA 99.99%', filterLife:'12mo', features:['PlasmaWave','Sleep','AHAM'], url:'https://www.winixamerica.com/product/c535/' },
-  { brand:'Winix', name:'5500-2',             tier:'large',    price:149.99,  cadrSmoke:232, cadrDust:243, cadrPollen:246, coverage:360,  noise:27, power:52,  wifi:false, hepa:'HEPA 99.99%', filterLife:'12mo', features:['PlasmaWave','Auto','Sleep'], url:'https://www.winixamerica.com/product/5500-2/' },
   { brand:'Winix', name:'C545',               tier:'large',    price:189.99,  cadrSmoke:243, cadrDust:252, cadrPollen:258, coverage:360,  noise:27, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','App','PlasmaWave'], url:'https://www.winixamerica.com/product/c545/' },
   { brand:'Winix', name:'5510',               tier:'large',    price:259.99,  cadrSmoke:250, cadrDust:260, cadrPollen:262, coverage:363,  noise:23, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','App','Carbon Pellets'], url:'https://www.winixamerica.com/product/5510/' },
   { brand:'Winix', name:'AM90',               tier:'large',    price:269.99,  cadrSmoke:243, cadrDust:252, cadrPollen:258, coverage:360,  noise:27, power:52,  wifi:true,  hepa:'HEPA 99.99%', filterLife:'12mo', features:['WiFi','Alexa','PlasmaWave'], url:'https://www.winixamerica.com/product/am90/' },
@@ -767,7 +774,7 @@ const TIER_LABELS = { small:'소형', medium:'중형', large:'대형', xlarge:'�
 
 rawData.forEach(p => {
   p.avgCadr = Math.round((p.cadrSmoke + p.cadrDust + p.cadrPollen) / 3);
-  p.valueScore = Math.round((p.avgCadr / p.price) * 100);
+  p.valueScore = Math.round((p.avgCadr / getPrice(p)) * 100);
   p.tierLabel = TIER_LABELS[p.tier] || p.tier;
 });
 const maxValue = Math.max(...rawData.map(p => p.valueScore));
@@ -807,6 +814,61 @@ function fmtNum(n) {
   return n.toString();
 }
 
+// ── 가격 편집 기능 ──────────────────────────────
+const PRICE_OVERRIDES = JSON.parse(localStorage.getItem('priceOverrides') || '{}');
+
+function getPriceKey(brand, name) {
+  return brand + '::' + name;
+}
+
+function getPrice(p) {
+  const key = getPriceKey(p.brand, p.name);
+  return PRICE_OVERRIDES[key] !== undefined ? PRICE_OVERRIDES[key] : p.price;
+}
+
+function startEditPrice(el, brand, name) {
+  const key = getPriceKey(brand, name);
+  const current = PRICE_OVERRIDES[key] !== undefined ? PRICE_OVERRIDES[key] : rawData.find(p => p.brand===brand && p.name===name)?.price;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.step = '0.01';
+  input.value = current;
+  input.style.cssText = 'width:90px;font-size:15px;font-family:inherit;font-weight:700;color:var(--green);background:var(--surface2);border:1px solid var(--green);border-radius:4px;padding:2px 6px;text-align:right;';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function save() {
+    const val = parseFloat(input.value);
+    if (!isNaN(val) && val > 0) {
+      PRICE_OVERRIDES[key] = val;
+      localStorage.setItem('priceOverrides', JSON.stringify(PRICE_OVERRIDES));
+    }
+    // 가성비 점수 즉시 재계산
+    rawData.forEach(p => { p.valueScore = Math.round((p.avgCadr / getPrice(p)) * 100); });
+    const maxVal = Math.max(...rawData.map(p => p.valueScore));
+    rawData.forEach(p => { p.valueNorm = Math.round((p.valueScore / maxVal) * 100); });
+    renderCards();
+    renderTable();
+    updateOverview();
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { input.blur(); }
+    if (e.key === 'Escape') { input.blur(); }
+  });
+}
+
+function resetAllPrices() {
+  if (!confirm('모든 수정된 가격을 초기화하시겠습니까?')) return;
+  Object.keys(PRICE_OVERRIDES).forEach(k => delete PRICE_OVERRIDES[k]);
+  localStorage.removeItem('priceOverrides');
+  renderCards();
+  renderTable();
+  updateOverview();
+}
+// ────────────────────────────────────────────────
+
 function fmtPrice(n) {
   return Number(n).toFixed(2);
 }
@@ -835,9 +897,9 @@ function renderCards() {
           </div>
           <div class="pcard-name">${p.name}</div>
         </div>
-        <div>
-          <div class="pcard-price">$${fmtPrice(p.price)}</div>
-          <div class="pcard-price-note">정가</div>
+        <div onclick="event.stopPropagation()">
+          <div class="pcard-price" id="price-${p.brand}-${p.name.replace(/\s+/g,'-')}" onclick="startEditPrice(this, '${p.brand}', '${p.name}')">$${fmtPrice(getPrice(p))}</div>
+          <div class="pcard-price-note">${PRICE_OVERRIDES[getPriceKey(p.brand,p.name)]!==undefined?"✎ 수정됨":"클릭하여 수정"}</div>
         </div>
       </div>
 
@@ -916,7 +978,7 @@ function renderTable() {
     valueNorm: Math.max(...list.map(p=>p.valueNorm)),
   };
   const mins = {
-    price: Math.min(...list.map(p=>p.price)),
+    price: Math.min(...list.map(p=>getPrice(p))),
     noise: Math.min(...list.map(p=>p.noise)),
     power: Math.min(...list.map(p=>p.power)),
   };
@@ -928,7 +990,7 @@ function renderTable() {
       <td class="brand-cell" style="color:${bc}">${p.brand}</td>
       <td class="name-cell">${p.name}</td>
       <td><span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span></td>
-      <td class="price-cell${p.price===mins.price?' best':''}">$${fmtPrice(p.price)}</td>
+      <td class="price-cell${getPrice(p)===mins.price?' best':''}" onclick="startEditPrice(this, '${p.brand}', '${p.name}')" style="cursor:pointer;" title="클릭하여 수정">$${fmtPrice(getPrice(p))}</div></td>
       <td class="cadr-cell">${p.cadrSmoke}</td>
       <td class="cadr-cell">${p.cadrDust}</td>
       <td class="cadr-cell">${p.cadrPollen}</td>
@@ -964,7 +1026,7 @@ function renderPriceMap() {
   const plotH = H - PAD.top - PAD.bottom;
 
   const maxCADR = Math.max(...rawData.map(p => p.avgCadr)) * 1.1;
-  const maxPrice = Math.max(...rawData.map(p => p.price)) * 1.1;
+  const maxPrice = Math.max(...rawData.map(p => getPrice(p))) * 1.1;
   const minCADR = 0;
   const minPrice = 0;
 
@@ -991,7 +1053,7 @@ function renderPriceMap() {
   // Dots
   rawData.forEach(p => {
     const x = PAD.left + (p.avgCadr / maxCADR) * plotW;
-    const y = PAD.top + (1 - p.price / maxPrice) * plotH;
+    const y = PAD.top + (1 - getPrice(p) / maxPrice) * plotH;
     const bc = BRAND_COLORS[p.brand] || '#888';
     const size = Math.max(10, Math.min(22, 8 + p.coverage / 120));
 
@@ -1009,7 +1071,7 @@ function renderPriceMap() {
     tooltip.className = 'map-tooltip';
     tooltip.innerHTML = `
       <div class="map-tooltip-name" style="color:${bc}">${p.brand} ${p.name}</div>
-      <div class="map-tooltip-row">💰 $${fmtPrice(p.price)}</div>
+      <div class="map-tooltip-row">💰 $${fmtPrice(getPrice(p))}</div>
       <div class="map-tooltip-row">💨 Avg CADR: ${p.avgCadr} CFM</div>
       <div class="map-tooltip-row">📐 Coverage: ${p.coverage.toLocaleString()} ft²</div>
       <div class="map-tooltip-row">⭐ 가성비: ${p.valueNorm}/100</div>
@@ -1034,8 +1096,8 @@ function renderOverview() {
   // Stats strip
   const total = rawData.length;
   const brands = [...new Set(rawData.map(p=>p.brand))].length;
-  const minPrice = Math.min(...rawData.map(p=>p.price));
-  const maxPrice = Math.max(...rawData.map(p=>p.price));
+  const minPrice = Math.min(...rawData.map(p=>getPrice(p)));
+  const maxPrice = Math.max(...rawData.map(p=>getPrice(p)));
   const maxCADR = Math.max(...rawData.map(p=>p.avgCadr));
   const bestValue = rawData.find(p => p.valueNorm === 100);
 
@@ -1056,7 +1118,7 @@ function renderOverview() {
   });
 
   const maxCADRAll = Math.max(...rawData.map(p=>p.avgCadr));
-  const maxPriceAll = Math.max(...rawData.map(p=>p.price));
+  const maxPriceAll = Math.max(...rawData.map(p=>getPrice(p)));
 
   // Build overview brand bars
   let html = `
@@ -1085,7 +1147,7 @@ function renderOverview() {
       <div style="display:flex;flex-direction:column;gap:10px;">`;
 
   Object.entries(byBrand).forEach(([brand, prods]) => {
-    const avg = Math.round(prods.reduce((s,p)=>s+p.price,0)/prods.length);
+    const avg = Math.round(prods.reduce((s,p)=>s+getPrice(p),0)/prods.length);
     const bc = BRAND_COLORS[brand];
     const pct = (avg/maxPriceAll*100).toFixed(1);
     html += `
@@ -1115,7 +1177,7 @@ function renderOverview() {
           <span style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--text)">${p.brand} ${p.name}</span>
           <span class="tier-badge ${tierClass(p.tier)}" style="margin-left:8px">${p.tierLabel}</span>
         </div>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">CADR ${p.avgCadr} / $${fmtPrice(p.price)}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">CADR ${p.avgCadr} / $${fmtPrice(getPrice(p))}</span>
         <div style="width:120px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;">
           <div style="width:${p.valueNorm}%;height:100%;background:${bc};border-radius:3px;"></div>
         </div>
@@ -1167,7 +1229,7 @@ function renderByBrand() {
             <tr style="cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''" onclick="window.open('${p.url}','_blank')">
               <td style="padding:9px 12px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;border-bottom:1px solid var(--border)">${p.name}</td>
               <td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span></td>
-              <td style="padding:9px 12px;font-family:var(--display);font-size:14px;color:var(--green);text-align:right;border-bottom:1px solid var(--border)">$${fmtPrice(p.price)}</td>
+              <td style="padding:9px 12px;font-family:var(--display);font-size:14px;color:var(--green);text-align:right;border-bottom:1px solid var(--border)">$${fmtPrice(getPrice(p))}</td>
               <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#00e676;text-align:right;border-bottom:1px solid var(--border)">${p.cadrSmoke}</td>
               <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#00d4ff;text-align:right;border-bottom:1px solid var(--border)">${p.cadrDust}</td>
               <td style="padding:9px 12px;font-family:var(--mono);font-size:11px;color:#ffd32a;text-align:right;border-bottom:1px solid var(--border)">${p.cadrPollen}</td>
@@ -1436,7 +1498,7 @@ async function startAiUpdate() {
   }
 
   // Recompute derived values
-  rawData.forEach(p => { p.valueScore = Math.round((p.avgCadr / p.price) * 100); });
+  rawData.forEach(p => { p.valueScore = Math.round((p.avgCadr / getPrice(p)) * 100); });
   const maxVal = Math.max(...rawData.map(p => p.valueScore));
   rawData.forEach(p => { p.valueNorm = Math.round((p.valueScore / maxVal) * 100); });
 
