@@ -586,10 +586,9 @@ main { position: relative; z-index: 1; padding: 28px 36px 60px; max-width: 1800p
   </div>
   <div class="header-right">
     <div class="last-update">마지막 업데이트: <span id="lastUpdate">—</span></div>
-    <div style="display:flex;align-items:center;gap:7px;padding:8px 16px;border:1px solid var(--border);border-radius:6px;background:var(--surface);">
-      <span style="font-size:13px;">📅</span>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:.04em;">매월 말일 수동 업데이트</span>
-    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="openAiModal()">
+      <span class="ri" style="display:inline-block">⟳</span> AI 가격 업데이트
+    </button>
   </div>
 </header>
 
@@ -1240,9 +1239,278 @@ function initDashboard() {
   renderByBrand();
   const now = new Date();
   document.getElementById('lastUpdate').textContent =
-    now.toLocaleDateString('ko-KR') + ' ' + now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+    now.toLocaleDateString('ko-KR') + ' ' + now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) + ' (하드코딩)';
 }
 
+
+// ──────────────────────────────
+// AI PRICE REFRESH — Claude API + web_search
+// ──────────────────────────────
+
+async function fetchPricesForBrand(brand, products) {
+  const productList = products.map(p => `- ${p.name} (URL: ${p.url})`).join('\n');
+  const prompt = `You are a price lookup assistant. Search the web for the CURRENT official retail price (USD) of each air purifier listed below from their official brand website.
+
+Products (${brand}):
+${productList}
+
+IMPORTANT: Return ONLY a valid JSON array, no markdown, no code blocks, no explanation.
+Format: [{"name": "exact name as given", "price": 99.99}, ...]
+- Use the official website price only (not Amazon or third party)
+- If price cannot be found, use null
+- Prices as USD numbers only (no $ sign)`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
+
+  const fullText = (data.content || [])
+    .filter(b => b.type === 'text')
+    .map(b => b.text)
+    .join('');
+
+  const jsonMatch = fullText.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) throw new Error('JSON not found in response');
+  return JSON.parse(jsonMatch[0]);
+}
+
+// ── MODAL STATE ──
+let selectedBrands = new Set(Object.keys(BRAND_COLORS));
+
+function chipStyle(active) {
+  return active
+    ? 'padding:5px 14px;border-radius:20px;border:1px solid var(--green);background:rgba(0,230,118,0.12);color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:.04em;transition:all .15s;'
+    : 'padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:.04em;transition:all .15s;';
+}
+
+function openAiModal() {
+  selectedBrands = new Set(Object.keys(BRAND_COLORS));
+  const modal = document.getElementById('aiModal');
+  modal.style.display = 'flex';
+
+  // Reset UI
+  document.getElementById('aiLog').style.display = 'none';
+  document.getElementById('aiLog').innerHTML = '';
+  document.getElementById('startAiBtn').disabled = false;
+  document.getElementById('startAiBtn').textContent = '▶ AI 가격 조회 시작';
+  document.getElementById('startAiBtn').style.cssText = '';
+  document.getElementById('modalBrandSelect').style.display = 'block';
+  document.getElementById('aiProgressWrap').style.display = 'none';
+
+  // Build brand chips
+  const chipsEl = document.getElementById('brandChips');
+  chipsEl.innerHTML = '';
+
+  const allChip = document.createElement('button');
+  allChip.textContent = '전체';
+  allChip.style.cssText = chipStyle(true);
+  allChip.onclick = () => {
+    const brandChips = chipsEl.querySelectorAll('[data-brand]');
+    const allSel = selectedBrands.size === Object.keys(BRAND_COLORS).length;
+    if (allSel) {
+      selectedBrands.clear();
+      allChip.style.cssText = chipStyle(false);
+      brandChips.forEach(c => c.style.cssText = chipStyle(false));
+    } else {
+      selectedBrands = new Set(Object.keys(BRAND_COLORS));
+      allChip.style.cssText = chipStyle(true);
+      brandChips.forEach(c => c.style.cssText = chipStyle(true));
+    }
+  };
+  chipsEl.appendChild(allChip);
+
+  Object.keys(BRAND_COLORS).forEach(brand => {
+    const chip = document.createElement('button');
+    chip.textContent = brand;
+    chip.dataset.brand = brand;
+    chip.style.cssText = chipStyle(true);
+    chip.onclick = () => {
+      if (selectedBrands.has(brand)) {
+        selectedBrands.delete(brand);
+        chip.style.cssText = chipStyle(false);
+      } else {
+        selectedBrands.add(brand);
+        chip.style.cssText = chipStyle(true);
+      }
+      const allSel = selectedBrands.size === Object.keys(BRAND_COLORS).length;
+      allChip.style.cssText = chipStyle(allSel);
+    };
+    chipsEl.appendChild(chip);
+  });
+}
+
+function closeAiModal() {
+  document.getElementById('aiModal').style.display = 'none';
+}
+
+function logAi(html, color = 'var(--text-dim)') {
+  const log = document.getElementById('aiLog');
+  log.style.display = 'block';
+  const line = document.createElement('div');
+  line.style.cssText = `color:${color};line-height:1.8;font-size:11px;`;
+  line.innerHTML = html;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setAiProgress(pct, label) {
+  document.getElementById('aiProgressWrap').style.display = 'block';
+  document.getElementById('aiProgressFill').style.width = pct + '%';
+  document.getElementById('aiProgressLabel').textContent = label;
+}
+
+async function startAiUpdate() {
+  if (selectedBrands.size === 0) {
+    logAi('⚠ 브랜드를 하나 이상 선택해주세요.', 'var(--yellow)');
+    return;
+  }
+
+  const btn = document.getElementById('startAiBtn');
+  btn.disabled = true;
+  btn.textContent = '조회 중...';
+  document.getElementById('modalBrandSelect').style.display = 'none';
+  document.getElementById('aiLog').innerHTML = '';
+
+  const brandsToUpdate = [...selectedBrands];
+  const total = brandsToUpdate.length;
+  let updatedCount = 0;
+  let errorCount = 0;
+
+  logAi(`✦ Claude AI 가격 조회 시작`, 'var(--accent)');
+  logAi(`조회 브랜드: <span style="color:var(--text)">${brandsToUpdate.join(' · ')}</span>`, 'var(--text-muted)');
+  logAi('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'var(--border2)');
+
+  for (let i = 0; i < brandsToUpdate.length; i++) {
+    const brand = brandsToUpdate[i];
+    const products = rawData.filter(p => p.brand === brand);
+    const pct = Math.round(((i) / total) * 90);
+    setAiProgress(pct, `${brand} 검색 중... (${i+1}/${total})`);
+
+    logAi(`<br>🔍 <span style="color:${BRAND_COLORS[brand]};font-weight:700;">${brand}</span> — ${products.length}개 제품`, 'var(--text-dim)');
+
+    try {
+      const results = await fetchPricesForBrand(brand, products);
+
+      results.forEach(item => {
+        const product = rawData.find(p =>
+          p.brand === brand &&
+          p.name.toLowerCase().trim() === (item.name || '').toLowerCase().trim()
+        );
+        if (!product) {
+          logAi(`  ⚠ 매칭 실패: "${item.name}"`, 'var(--yellow)');
+          return;
+        }
+        if (item.price === null || item.price === undefined || isNaN(item.price)) {
+          logAi(`  ⚠ ${product.name} — 가격 미확인`, 'var(--yellow)');
+          return;
+        }
+        const oldPrice = product.price;
+        product.price = parseFloat(item.price);
+        const diff = product.price - oldPrice;
+        const diffStr = diff > 0
+          ? `<span style="color:var(--red)">▲ +$${diff.toFixed(2)}</span>`
+          : diff < 0
+          ? `<span style="color:var(--green)">▼ $${diff.toFixed(2)}</span>`
+          : `<span style="color:var(--text-muted)">변동없음</span>`;
+        logAi(`  ✓ ${product.name}: <span style="color:var(--text-muted)">$${fmtPrice(oldPrice)}</span> → <strong style="color:var(--green)">$${fmtPrice(product.price)}</strong> ${diffStr}`, 'var(--text-dim)');
+        updatedCount++;
+      });
+    } catch (err) {
+      logAi(`  ✗ 오류: ${err.message}`, 'var(--red)');
+      errorCount++;
+    }
+
+    // Small delay between brands
+    if (i < brandsToUpdate.length - 1) await new Promise(r => setTimeout(r, 500));
+  }
+
+  // Recompute derived values
+  rawData.forEach(p => { p.valueScore = Math.round((p.avgCadr / p.price) * 100); });
+  const maxVal = Math.max(...rawData.map(p => p.valueScore));
+  rawData.forEach(p => { p.valueNorm = Math.round((p.valueScore / maxVal) * 100); });
+
+  setAiProgress(100, '완료!');
+  logAi('<br>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'var(--border2)');
+  logAi(
+    `✦ 완료 — <span style="color:var(--green)">${updatedCount}개 가격 업데이트</span>${errorCount > 0 ? `, <span style="color:var(--red)">${errorCount}개 브랜드 오류</span>` : ', 오류없음'}`,
+    'var(--accent)'
+  );
+
+  // Re-render dashboard
+  renderOverview();
+  renderCards();
+  renderTable();
+  renderByBrand();
+
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent =
+    now.toLocaleDateString('ko-KR') + ' ' +
+    now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) +
+    ` (AI 업데이트 · ${updatedCount}개 갱신)`;
+
+  btn.textContent = '✓ 완료 — 닫기';
+  btn.disabled = false;
+  btn.style.cssText = 'background:var(--green);color:#080c10;font-family:var(--mono);font-size:11px;padding:10px 24px;border-radius:6px;border:none;cursor:pointer;font-weight:700;letter-spacing:.05em;width:100%;margin-top:12px;';
+  btn.onclick = closeAiModal;
+}
+
+// ── INIT ──
+initDashboard();
 </script>
+
+<!-- AI UPDATE MODAL -->
+<div id="aiModal" style="display:none;position:fixed;inset:0;background:rgba(8,12,16,0.92);backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:560px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+
+    <!-- Modal Header -->
+    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div>
+        <div style="font-family:var(--display);font-size:20px;letter-spacing:.08em;color:var(--accent);">🤖 AI 가격 실시간 업데이트</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:3px;letter-spacing:.05em;">Claude AI가 웹을 검색해 각 제품의 공식 최신 가격을 가져옵니다</div>
+      </div>
+      <button onclick="closeAiModal()" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+
+    <!-- Brand Select -->
+    <div id="modalBrandSelect" style="padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">조회할 브랜드 선택</div>
+      <div id="brandChips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <div style="margin-top:14px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text-muted);letter-spacing:.05em;">⚠ 브랜드당 약 10~20초 소요 · Claude API 웹서치 사용 · 공식 사이트 기준 가격</div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="aiProgressWrap" style="display:none;padding:12px 24px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">진행상황</span>
+        <span id="aiProgressLabel" style="font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:.04em;"></span>
+      </div>
+      <div style="height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;">
+        <div id="aiProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:2px;transition:width .4s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Log Area -->
+    <div id="aiLog" style="display:none;flex:1;overflow-y:auto;padding:14px 24px;font-family:var(--mono);font-size:11px;line-height:1.8;min-height:120px;max-height:300px;"></div>
+
+    <!-- Footer -->
+    <div style="padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;">
+      <button id="startAiBtn" onclick="startAiUpdate()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#080c10;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;border:none;border-radius:8px;cursor:pointer;transition:opacity .2s;">▶ AI 가격 조회 시작</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
