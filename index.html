@@ -990,7 +990,7 @@ function renderTable() {
       <td class="brand-cell" style="color:${bc}">${p.brand}</td>
       <td class="name-cell">${p.name}</td>
       <td><span class="tier-badge ${tierClass(p.tier)}">${p.tierLabel}</span></td>
-      <td class="price-cell${getPrice(p)===mins.price?' best':''}" onclick="startEditPrice(this, '${p.brand}', '${p.name}')" style="cursor:pointer;" title="클릭하여 수정">$${fmtPrice(getPrice(p))}</div></td>
+      <td class="price-cell${getPrice(p)===mins.price?' best':''}" onclick="startEditPrice(this, '${p.brand}', '${p.name}')" style="cursor:pointer;" title="클릭하여 수정">$${fmtPrice(getPrice(p))}</td>
       <td class="cadr-cell">${p.cadrSmoke}</td>
       <td class="cadr-cell">${p.cadrDust}</td>
       <td class="cadr-cell">${p.cadrPollen}</td>
